@@ -50,7 +50,7 @@ def update_post(id: int, obj_in: UpdatePost, db: Session = Depends(get_db), user
         raise HTTPException(status_code=404, detail='Post not found')
 
     if not post.author_id == user.id:
-        raise HTTPException(status_code=400, detail='no permission to delete') 
+        raise HTTPException(status_code=400, detail='no permission to edit') 
 
     db_obj = post_service.get(db=db, id=id)
     return post_service.update(db=db, obj_in=obj_in, db_obj=db_obj)
