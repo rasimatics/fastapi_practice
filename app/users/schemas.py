@@ -1,31 +1,48 @@
 from typing import Optional
 from pydantic import BaseModel, EmailStr
 
-
-class UserDB(BaseModel):
-    full_name: str
+class UserBase(BaseModel):
     email: EmailStr
+
+
+class CreateUser(UserBase):
+    full_name: str
     password: str
     description: Optional[str]
 
-    class Config:
-        orm_mode = True
 
-
-class UserOut(BaseModel):
+class UserOut(UserBase):
     id: int
     full_name: str
-    email: EmailStr
     description: Optional[str]
 
     class Config:
         orm_mode = True
 
 
-class UserLogin(BaseModel):
-    email: str
+class UserLogin(UserBase):
     password: str
 
 
 class AccessToken(BaseModel):
     token: str
+
+
+class UserDB(UserBase):
+    full_name: str
+    password: str
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class UserOut(UserBase):
+    id: int
+    full_name: str
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+

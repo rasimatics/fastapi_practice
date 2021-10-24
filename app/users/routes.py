@@ -2,7 +2,7 @@ from typing import List
 from fastapi import Depends, HTTPException
 from fastapi.routing import APIRouter
 from sqlalchemy.orm import Session
-from .schemas import AccessToken, UserDB, UserLogin, UserOut
+from .schemas import AccessToken, CreateUser, UserLogin, UserOut
 from .crud import user_service
 from .dependency import get_current_user
 from .jwt import create_token
@@ -12,8 +12,11 @@ from ..db.dependency import get_db
 user_routes = APIRouter()
 
 @user_routes.post('/register', response_model=UserOut)
-def register(user: UserDB, db: Session = Depends(get_db)):
-    return user_service.create(db, user)
+def register(user: CreateUser, db: Session = Depends(get_db)):
+    if not user_service.get_by_email(db=db, email=user.email):
+        return user_service.create(db, user)
+        
+    raise HTTPException(status_code=400, detail='Email taken')
 
 
 @user_routes.post('/login', response_model=AccessToken)
