@@ -33,10 +33,7 @@ def create_post(obj_in: CreatePost, db: Session = Depends(get_db), user: User = 
     if category_service.get(db=db, id=obj_in.category_id):
         return post_service.create(db=db, obj_in=obj_in, author_id=user.id)
         
-    raise HTTPException(
-        status_code=404,
-        detail='Category not found'
-    )
+    raise HTTPException(status_code=404, detail='Category not found')
 
 
 @post_routes.put('/post/{id}', response_model=PostOut)
@@ -46,12 +43,14 @@ def update_post(id: int, obj_in: UpdatePost, db: Session = Depends(get_db), user
             status_code=404,
             detail='Category not found'
         )
-    
-    if not post_service.get(db=db, id=id):
-        raise HTTPException(
-            status_code=404,
-            detail='Post not found'
-        )
+
+    post = post_service.get(db=db, id=id)
+
+    if not post:
+        raise HTTPException(status_code=404, detail='Post not found')
+
+    if not post.author_id == user.id:
+        raise HTTPException(status_code=400, detail='no permission to delete') 
 
     db_obj = post_service.get(db=db, id=id)
     return post_service.update(db=db, obj_in=obj_in, db_obj=db_obj)
@@ -60,10 +59,12 @@ def update_post(id: int, obj_in: UpdatePost, db: Session = Depends(get_db), user
 
 @post_routes.delete('/post/{id}', response_model=PostOut)
 def delete_post(id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    if post_service.get(db=db, id=id):
-        return post_service.remove(db=db, id=id)
+    post = post_service.get(db=db, id=id)
+    
+    if not post:
+        raise HTTPException(status_code=404, detail='post not found') 
         
-    raise HTTPException(
-        status_code=404,
-        detail='post not found'
-    ) 
+    if not post.author_id == user.id:
+        raise HTTPException(status_code=400, detail='no permission to delete') 
+        
+    return post_service.remove(db=db, id=id)

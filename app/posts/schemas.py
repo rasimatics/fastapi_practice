@@ -51,6 +51,7 @@ class UpdatePost(PostBase):
 
 class PostOut(PostBase):
     id: int
+    author_id: int
     created: datetime
     updated: datetime
 
