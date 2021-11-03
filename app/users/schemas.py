@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel, EmailStr
+from typing import List, Optional
+from pydantic import BaseModel, EmailStr, validator
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -9,6 +9,13 @@ class CreateUser(UserBase):
     full_name: str
     password: str
     description: Optional[str]
+
+
+class UserUpdate(UserBase):
+    full_name: str
+    password: str
+    description: Optional[str]
+
 
 
 class UserOut(UserBase):
@@ -28,21 +35,58 @@ class AccessToken(BaseModel):
     token: str
 
 
-class UserDB(UserBase):
-    full_name: str
-    password: str
-    description: Optional[str]
 
-    class Config:
-        orm_mode = True
+class PermissionBase(BaseModel):
+    name: str
 
+class PermissionCreate(PermissionBase):
+    pass
 
-class UserOut(UserBase):
+class PermissionUpdate(PermissionBase):
+    pass
+
+class PermissionOut(PermissionBase):
     id: int
-    full_name: str
-    description: Optional[str]
 
     class Config:
         orm_mode = True
 
 
+
+class RoleBase(BaseModel):
+    name: str
+
+class RoleCreate(PermissionBase):
+    permissions: List[int]
+
+
+class RoleUpdate(PermissionBase):
+    pass
+
+class RoleOut(PermissionBase):
+    id: int
+    permissions: List[PermissionOut]
+
+
+    class Config:
+        orm_mode = True
+
+
+class RoleOut2(PermissionBase):
+    id: int
+
+
+    class Config:
+        orm_mode = True
+
+
+class UserRole(BaseModel):
+    user_id: int
+    role_id: int
+
+
+class UserRoleOut(UserOut):
+    roles: List[RoleOut2]
+
+    class Config:
+        orm_mode = True
